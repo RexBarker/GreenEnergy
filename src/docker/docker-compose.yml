@@ -1,0 +1,126 @@
+version: "3"
+services:
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    restart: always
+    ports:
+      - 3000:3000
+    networks:
+      - monitoring
+    volumes:
+      - grafana-volume:/var/lib/grafana
+#######################################################################
+  influxdb:
+    image: influxdb
+    container_name: influxdb
+    restart: always
+    ports:
+      - 8086:8086
+    networks:
+      - monitoring
+    volumes:
+      - influxdb-volume:/var/lib/influxdb
+#######################################################################
+  zookeeper-1:
+    image: confluentinc/cp-zookeeper:5.2.1
+    container_name: zookeeper-1
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    restart: always
+#######################################################################
+
+  broker-1:
+    image: confluentinc/cp-kafka:5.2.1
+    container_name: broker-1
+    hostname: broker-1
+    depends_on:
+      - zookeeper-1
+    ports:
+      - "9092:9092"
+      - "29092:29092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_BROKER_RACK: 'r1'
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper-1:2181'
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://${DOCKER_HOST_IP}:9092,EXTERNAL://${PUBLIC_IP}:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+#      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://${DOCKER_HOST_IP}:9092'
+#      KAFKA_METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_DELETE_TOPIC_ENABLE: 'true'
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'false'
+      KAFKA_JMX_PORT: 9994
+      KAFKA_JMX_OPTS: '-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.rmi.port=9994'
+      KAFKA_JMX_HOSTNAME: 'broker-1'
+    restart: always
+#######################################################################
+
+  broker-2:
+    image: confluentinc/cp-kafka:5.2.1
+    container_name: broker-2
+    hostname: broker-2
+    depends_on:
+      - zookeeper-1
+    ports:
+      - "9093:9093"
+      - "29093:29093" 
+    environment:
+      KAFKA_BROKER_ID: 2
+      KAFKA_BROKER_RACK: 'r1'
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper-1:2181'
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://${DOCKER_HOST_IP}:9093,EXTERNAL://${PUBLIC_IP}:29093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+#      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://${DOCKER_HOST_IP}:9093'
+#      KAFKA_METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_DELETE_TOPIC_ENABLE: 'true'
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'false'
+      KAFKA_JMX_PORT: 9993
+      KAFKA_JMX_OPTS: '-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.rmi.port=9993'
+      KAFKA_JMX_HOSTNAME: 'broker-2'      
+    restart: always
+#######################################################################
+
+  broker-3:
+    image: confluentinc/cp-enterprise-kafka:5.2.1
+    container_name: broker-3
+    hostname: broker-3
+    depends_on:
+      - zookeeper-1
+    ports:
+      - "9094:9094"
+      - "29094:29094"
+    environment:
+      KAFKA_BROKER_ID: 3
+      KAFKA_BROKER_RACK: 'r1'
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper-1:2181'
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://${DOCKER_HOST_IP}:9094,EXTERNAL://${PUBLIC_IP}:29094
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+#      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://${DOCKER_HOST_IP}:9094'
+#      KAFKA_METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_DELETE_TOPIC_ENABLE: 'true'
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'false'
+      KAFKA_JMX_PORT: 9992
+      KAFKA_JMX_OPTS: '-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.rmi.port=9992'
+      KAFKA_JMX_HOSTNAME: 'broker-3'
+
+    restart: always
+#######################################################################
+networks:
+  monitoring:
+volumes:
+  grafana-volume:
+    external: true
+  influxdb-volume:
+    external: true

@@ -1,0 +1,276 @@
+{
+    "kafkaWeatherProducer": 
+    {
+        "bootstrapServers":  
+        {  
+            "internal" : [ "192.XXX.Y.ZZZ:9092", "192.XXX.Y.ZZZ:9093" ],
+            "external" : [ "84.XX.YYY.ZZZ:29092", "84.XX.YYY.ZZZ:29093" ]
+        },
+        "dataSource": "files",
+        "baseDir": "/Users/privateUser/Project/data/Weather_validJune2019",
+        "measurements": 
+        {
+            "currentWeather"  : ["curr_201906*.json"],
+            "forecastWeather" : ["fore_201906*.json"]
+        }
+    },
+
+    "kafkaWeatherConsumer":
+    {
+        "kafkaConsumer":
+        {   
+            "bootstrapServers":  
+            {  
+                "internal" : [ "192.XXX.Y.ZZZ:9092", "192.XXX.Y.ZZZ:9093" ],
+                "external" : [ "84.XX.YYY.ZZZ:29092", "84.XX.YYY.ZZZ:29093" ]
+            },
+
+            "groups and topics": {
+                "currentWeather":  [ [ "wc-.*" ], 0,  0 ],
+                "forecastWeather": [ [ "wf-.*" ], 0,  0 ]
+            },
+
+            "batchsize": 100,
+            "timeout": 5
+        },
+
+        "dataTransform": 
+        {
+            "keepMeasurements": 
+            [   "temp",
+                "temp_min", "temp_max", 
+                "humidity", "pressure", 
+                "clouds", 
+                "wind_speed", "wind_direc",
+                "sunrise, sunset"
+            ]
+        },
+
+        "influxDB":
+        {
+            "connection": 
+            {
+                "internal": { "host": "192.XXX.Y.ZZZ", "port": 8086},
+                "external": { "host": "84.XX.YYY.ZZZ", "port": 8086},
+                "local":    { "host": "localhost",     "port": 8086},
+                "setup":    { "timeout": 5, "retries": 50 }
+            },
+
+           "export power weight file": "/Users/privateUser/Project/data/ExchangeJSON/exportDESummary.json",
+            "write options": 
+            { 
+                "batch_size": 1000,
+                "time_precision": "s"
+            }
+        }
+    },
+    "influxDB_Price":
+    {
+        "connection": {
+                        "internal": { "host": "192.XXX.Y.ZZZ", "port": 8086},
+                        "external": { "host": "84.XX.YYY.ZZZ", "port": 8086},
+                        "local":    { "host": "localhost",     "port": 8086},
+                        "setup":    { "timeout": 5, "retries": 50 }
+                      },
+        "write options": 
+        { 
+            "batch_size": 1000,
+            "time_precision": "s"
+        },
+        "dbname": "price",
+        "export power weight file": "/Users/privateUser/Project/data/ExchangeJSON/exportDESummary.json",
+        "use measurements": ["*"],
+        "dataSource": "files",
+        "baseDir": "/Users/privateUser/Project/data/PriceEnergyJSON",
+        "measurements":
+        {
+            "general":       { "files": [ "week_2019_34.json"] }
+        }
+    },
+
+    "influxDB_Power":
+    {
+        "connection": {
+                        "internal": { "host": "192.XXX.Y.ZZZ", "port": 8086},
+                        "external": { "host": "84.XX.YYY.ZZZ", "port": 8086},
+                        "local":    { "host": "localhost",     "port": 8086},
+                        "setup":    { "timeout": 5, "retries": 50 }
+                      },
+        "write options": 
+        { 
+            "batch_size": 1000,
+            "time_precision": "s"
+        },
+        "dbname": "power",
+        "export power weight file": "/Users/privateUser/Project/data/ExchangeJSON/exportDESummary.json",
+        "use measurements": ["*"],
+        "dataSource": "files",
+        "baseDir": "/Users/privateUser/Project/data/PlantPowerJSON",
+        "measurements":
+        {
+            "general":       { "files": [ "week_20*.json"] },
+            "wind_onshore":  { "files": [ "week_wind_onshore_unit_*.json" ] },
+            "wind_offshore": { "files": [ "week_wind_offshore_unit_*.json" ] },
+            "solar_wind":    { "files": [ "week_sw_*.json" ] },
+            "hydro":         { "files": [ "week_run_of_river_unit_*.json"] },
+            "storage":       { "files": [ "week_pumped_storage_unit_*.json"] },
+            "oil":           { "files": [ "week_oil_unit_*.json"] },
+            "nuclear":       { "files": [ "week_nuclear_unit_*.json"] },
+            "brown_coal":    { "files": [ "week_lignite_unit_*.json"] },
+            "hard_coal":     { "files": [ "week_hard_coal_unit_*.json"] },
+            "gas":           { "files": [ "week_gas_unit_*.json"] },
+            "biomass":       { "files": [ "week_garbage_unit_*.json"] },
+            "export":        { "files": [ "week_exp_*.json"] } 
+        }
+         
+
+    },
+     
+    "influxDB_Climate":
+    {
+        "connection": 
+        {
+            "internal": { "host": "192.XXX.Y.ZZZ", "port": 8086},
+            "external": { "host": "84.XX.YYY.ZZZ", "port": 8086},
+            "local":    { "host": "localhost",     "port": 8086},
+            "setup":    { "timeout": 5, "retries": 50 }
+        },
+        "write options": 
+        { 
+            "batch_size": 1000,
+            "time_precision": "s"
+        },
+        "dbname": "climate",
+        "export power weight file": "/Users/privateUser/Project/data/ExchangeJSON/exportDESummary.json",
+        "baseDir": "/Users/privateUser/Project/data/ClimateJSON",
+        "dataSource": "files",
+        "batchSize": 1000,
+        "use measurements": ["*"],
+        "measurements":
+        {
+            "air":  
+            {   
+                "files": [ "month_air_*.json"],
+                "field keys":
+                {
+                    "include": [ 
+                        "Bremen",
+                        "Chemnitz",
+                        "Fichtelberg",
+                        "Fürstenzell",
+                        "Görlitz",
+                        "Hamburg-Fuhlsbüttel",
+                        "Hohenpeißenberg",
+                        "Konstanz",
+                        "Lindenberg",
+                        "Norderney",
+                        "Potsdam",
+                        "Rostock-Warnemünde",
+                        "Saarbrücken-Ensheim",
+                        "Schleswig",
+                        "Seehausen",
+                        "Stuttgart (Schnarrenberg)",
+                        "Trier-Petrisberg",
+                        "Würzburg",
+                        "Ø" ] ,
+                    "rename": {
+                        "Fürstenzell": "Furstenzell",
+                        "Görlitz": "Gorlitz",
+                        "Hamburg-Fuhlsbüttel": "Hamburg",
+                        "Hohenpeißenberg": "Hohenpeissenberg",
+                        "Rostock-Warnemünde": "Rostock",
+                        "Saarbrücken-Ensheim": "Saarbrucken",
+                        "Stuttgart (Schnarrenberg)": "Stuttgart",
+                        "Trier-Petrisberg": "Trier",
+                        "Würzburg": "Wuerzburg"
+                    } 
+                }
+            },
+            "solar":
+            {   "files": [ "month_solar_*.json" ],
+                "field keys":
+                {
+                    "include": [ 
+                        "Bremen",
+                        "Chemnitz",
+                        "Fichtelberg",
+                        "Fürstenzell",
+                        "Görlitz",
+                        "Hamburg-Fuhlsbüttel",
+                        "Hohenpeißenberg",
+                        "Konstanz",
+                        "Lindenberg",
+                        "Norderney",
+                        "Potsdam",
+                        "Rostock-Warnemünde",
+                        "Saarbrücken-Ensheim",
+                        "Schleswig",
+                        "Seehausen",
+                        "Stuttgart (Schnarrenberg)",
+                        "Trier-Petrisberg",
+                        "Würzburg",
+                        "Ø" ] ,
+                    "rename": {
+                        "Fürstenzell": "Furstenzell",
+                        "Görlitz": "Gorlitz",
+                        "Hamburg-Fuhlsbüttel": "Hamburg",
+                        "Hohenpeißenberg": "Hohenpeissenberg",
+                        "Rostock-Warnemünde": "Rostock",
+                        "Saarbrücken-Ensheim": "Saarbrucken",
+                        "Stuttgart (Schnarrenberg)": "Stuttgart",
+                        "Trier-Petrisberg": "Trier",
+                        "Würzburg": "Wuerzburg"
+                    }
+                }
+            },
+            "wind":
+            {   "files": [ "month_wind_*.json" ],
+                "field keys":
+                {
+                    "include": [ 
+                        "Bremen",
+                        "Chemnitz",
+                        "Fichtelberg",
+                        "Fürstenzell",
+                        "Görlitz",
+                        "Hamburg-Fuhlsbüttel",
+                        "Hohenpeißenberg",
+                        "Konstanz",
+                        "Lindenberg",
+                        "Norderney",
+                        "Potsdam",
+                        "Rostock-Warnemünde",
+                        "Saarbrücken-Ensheim",
+                        "Schleswig",
+                        "Seehausen",
+                        "Stuttgart (Schnarrenberg)",
+                        "Trier-Petrisberg",
+                        "Würzburg",
+                        "Ø" ] ,
+                    "rename": {
+                        "Fürstenzell": "Furstenzell",
+                        "Görlitz": "Gorlitz",
+                        "Hamburg-Fuhlsbüttel": "Hamburg",
+                        "Hohenpeißenberg": "Hohenpeissenberg",
+                        "Rostock-Warnemünde": "Rostock",
+                        "Saarbrücken-Ensheim": "Saarbrucken",
+                        "Stuttgart (Schnarrenberg)": "Stuttgart",
+                        "Trier-Petrisberg": "Trier",
+                        "Würzburg": "Wuerzburg"
+                    }
+                }
+            }
+        }
+    },
+    "jupyter_SolarWindEnergy":
+    {
+        "startTime": "2019-08-01 00:00:00",
+        "endTime": "2019-08-20 00:00:00",
+        "forecastHours": 48,
+        "outputDB": "SolarWindEnergy",
+        "PredictPlantPower": {
+            "plantQueryStrings": [ "/München/", "/Knapsack/" ]
+        }
+    }
+
+}
