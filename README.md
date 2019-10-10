@@ -25,3 +25,7 @@ Any energy market cannot, however consist of only renewable energy sources -- th
 ---
 ## Docker configuration
 ![Docker configuration](https://github.com/RexBarker/GreenEnergy/blob/master/DockerComponents.png)
+
+---
+## Results
+![Analysis results](https://github.com/RexBarker/GreenEnergy/blob/master/PredictionResult.png)
