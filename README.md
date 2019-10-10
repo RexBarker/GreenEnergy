@@ -2,8 +2,9 @@
 
 ## Background
 The analysis of the German Energy market using Big Data.  
--- Infrastructure: utilization of Big data methodlogies (Docker, Kafka, InfluxDB, Jupyter notebook, Python)
--- Analysis : focuses on the prediction of conventional power plant operation considering the influence of solar and wind power
+
+- Infrastructure: utilization of Big data methodlogies (Docker, Kafka, InfluxDB, Jupyter notebook, Python)
+- Analysis : focuses on the prediction of conventional power plant operation considering the influence of solar and wind power
 
 ---
 ## Synopsis
